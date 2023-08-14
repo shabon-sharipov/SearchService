@@ -2,6 +2,8 @@ using SearchService.ElasticSearchRepository;
 using SearchService.Mappers;
 using SearchService.Services;
 using SearchService.Services.Interfacec;
+using Serilog;
+using Serilog.Sinks.Elasticsearch;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +14,28 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<SearchReposiroty, SearchReposiroty>();
 builder.Services.AddScoped(typeof(IRepositoryEs<>), typeof(RepositoryEs<>));
 builder.Services.AddAutoMapper(typeof(AutoMapperConfiguration).Assembly);
+
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration.Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .WriteTo.Console()
+        .WriteTo.Elasticsearch(
+            new ElasticsearchSinkOptions(new Uri(context.Configuration["ElasticSearchConfiguration:Uri"]))
+            {
+                IndexFormat =
+                    $"{context.Configuration["ApplicationName"]}-logs-{context.HostingEnvironment.EnvironmentName?.ToLower()
+                        .Replace(".", "-")}-{DateTime.UtcNow:yyyy-MM}",
+                AutoRegisterTemplate = true,
+                NumberOfShards = 2,
+                NumberOfReplicas = 1
+            })
+        .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
+        .ReadFrom.Configuration(context.Configuration);
+});
 
 var app = builder.Build();
 

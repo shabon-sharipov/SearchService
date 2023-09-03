@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SearchService.Models;
-using SearchService.Services.Interfacec;
+using SearchService.Services.Interfaces;
 
 namespace SearchService.Controllers;
 
@@ -34,11 +34,11 @@ public class StudentController : ControllerBase
     }
 
     [HttpGet("Search")]
-    public async Task<ActionResult<List<StudentResponsModel>>> Searsh(string searchSymbol,
+    public async Task<ActionResult<List<StudentResponsModel>>> Search(string searchSymbol,
         CancellationToken cancellationToken)
     {
-        var respons = await _studentService.Search(searchSymbol, cancellationToken);
+        var response = await _studentService.Search(searchSymbol, cancellationToken);
 
-        return Ok(respons);
+        return Ok(response);
     }
 }

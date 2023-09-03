@@ -1,7 +1,8 @@
 using SearchService.ElasticSearchRepository;
 using SearchService.Mappers;
+using SearchService.Models;
 using SearchService.Services;
-using SearchService.Services.Interfacec;
+using SearchService.Services.Interfaces;
 using Serilog;
 using Serilog.Sinks.Elasticsearch;
 
@@ -14,8 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IStudentService, StudentService>();
-builder.Services.AddScoped<SearchReposiroty, SearchReposiroty>();
-builder.Services.AddScoped(typeof(IRepositoryEs<>), typeof(RepositoryEs<>));
+builder.Services.AddScoped<IElasticSearchRepository<Student>, ElasticSearchStudentRepository>();
 builder.Services.AddAutoMapper(typeof(AutoMapperConfiguration).Assembly);
 
 builder.Host.UseSerilog((context, configuration) =>
